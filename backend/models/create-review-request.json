@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "todo",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "createDate": {
+      "type": "string"
+    },
+    "comment": {
+      "type": "string"
+    },
+    "point": {
+      "type": "number"
+    },
+    "attachmentUrl": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "comment",
+    "point"
+  ],
+  "additionalProperties": false
+}

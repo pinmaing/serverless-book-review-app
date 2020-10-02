@@ -1,0 +1,48 @@
+[
+  {
+    "bookId": "1",
+    "title": "Book Title 1",
+    "category": "Science",
+    "edition": "1st Edition",
+    "publisher": "Mr. Jhon",
+    "publishDate": "2012-01-01",
+    "attachementUrl": "s3://"
+  },
+  {
+    "bookId": "2",
+    "title": "Book Title 2",
+    "category": "Science",
+    "edition": "1st Edition",
+    "publisher": "Mr. Jhon",
+    "publishDate": "2012-01-01",
+    "attachementUrl": "s3://"
+  },
+  {
+    "bookId": "3",
+    "title": "Book Title 3",
+    "category": "Science",
+    "edition": "1st Edition",
+    "publisher": "Mr. Jhon",
+    "publishDate": "2012-01-01",
+    "attachementUrl": "s3://"
+  },
+  {
+    "bookId": "4",
+    "title": "Book Title 4",
+    "category": "Science",
+    "edition": "1st Edition",
+    "publisher": "Mr. Jhon",
+    "publishDate": "2012-01-01",
+    "attachementUrl": "s3://"
+  },
+  {
+    "bookId": "5",
+    "title": "Book Title 5",
+    "category": "Science",
+    "edition": "1st Edition",
+    "publisher": "Mr. Jhon",
+    "publishDate": "2012-01-01",
+    "attachementUrl": "s3://"
+  }
+
+]
