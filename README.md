@@ -138,7 +138,7 @@ ReviewsTable:
           KeyType: RANGE
         Projection:
           ProjectionType: ALL
-
+```
 # How to run the application
 
 ## Backend
