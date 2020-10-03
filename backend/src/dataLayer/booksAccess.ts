@@ -1,17 +1,15 @@
-import * as AWS  from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-
-const XAWS = AWSXRay.captureAWS(AWS)
+// import { updateBook } from '../businessLogic/books'
 
 import { BookItem } from '../models/BookItem'
 import {BookItemList} from '../models/BookItemList'
+import {createDynamoDBClient} from './utils'
 
 export class BookAccess {
 
   constructor(
-    private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
-    private readonly booksTable = process.env.BOOKS_TABLE,
+    private readonly docClient: DocumentClient = createDynamoDBClient(),
+    private readonly booksTable = process.env.BOOK_TABLE,
     private readonly publisherIndex = process.env.BOOK_PUBLISHER_INDEX,
     private readonly publishDateIndex = process.env.BOOK_PUBLISH_DATE_INDEX,
     private readonly pointIndex = process.env.BOOK_POINT_INDEX) {
@@ -50,10 +48,14 @@ export class BookAccess {
   }
 
   async updateBook(bookId: string,point: number) {
+    console.log("Update Book Review point : " + bookId + "   count  " + point)
+    const old = await this.getBook(bookId)
+
     var params = {
       TableName:this.booksTable,
       Key:{
-        bookId: bookId
+        bookId: bookId,
+        title: old.title
       },
       UpdateExpression: "set #bookPoint = #bookPoint + :point",
       ExpressionAttributeNames:{
@@ -64,16 +66,20 @@ export class BookAccess {
       },
       ReturnValues:"UPDATED_NEW"
   };
-    await this.docClient.update(params).promise()
+  const updatedBook = await this.docClient.update(params).promise() 
+  console.log(updatedBook.Attributes)
   }
 
   async updateBookReviewCount(bookId: string, reviewCount: number) {
+    console.log("Update Book Review Count : " + bookId + "   count  " + reviewCount)
+    const old = await this.getBook(bookId)
+
     var params = {
       TableName:this.booksTable,
       Key:{
-        bookId: bookId
+        bookId: bookId,
+        title: old.title
       },
-      UpdateExpression: "set #reviewCount = #reviewCount + :reviewCount",
       ExpressionAttributeNames:{
           '#reviewCount': "reviewCount"
       },
@@ -82,7 +88,10 @@ export class BookAccess {
       },
       ReturnValues:"UPDATED_NEW"
   };
-    await this.docClient.update(params).promise()
+    if(reviewCount > 0) params["UpdateExpression"] = "set #reviewCount = #reviewCount + :reviewCount"
+    else params["UpdateExpression"] = "set #reviewCount = #reviewCount - :reviewCount"
+    const updatedBook = await this.docClient.update(params).promise() 
+    console.log(updatedBook.Attributes)
   }
 
   async getBook(bookId: string): Promise<BookItem> {

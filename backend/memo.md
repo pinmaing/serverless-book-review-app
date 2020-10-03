@@ -4,10 +4,10 @@ Books
  - category
  - edition
  - publisher (Range)
- - publishedDate(Range)
+ - publishDate(Range)
  - attachementUrl
  - point(Range)
- - attachmentUrl
+ - reviewCount
  - 
 ReserveBook
  - reserveId (Range)

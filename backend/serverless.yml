@@ -1,5 +1,5 @@
 service:
-  name: sls-book-review-app
+  name: sls-review-app
 
 plugins:
   - serverless-webpack
@@ -20,22 +20,17 @@ provider:
     apiGateway: true
 
   environment:
-    # RESERVE_TABLE: Reserve-Book-${self:provider.stage}
-    # RESERVE_BOOK_ID_INDEX: bookIdIndex
-    # RESERVE_DUEDATE_INDEX: dueDateIndex
-    # WAITLIST_TABLE: Waitlist-Book-${self:provider.stage}
-    # WAITLIST_BOOK_ID_INDEX: bookIdIndex
-    BOOK_TABLE: Books-${self:provider.stage}
+    BOOK_TABLE: Book-${self:provider.stage}
     BOOK_PUBLISHER_INDEX: publisherIndex
     BOOK_PUBLISH_DATE_INDEX: publishDateIndex
     BOOK_POINT_INDEX: pointIndex
     REVIEW_TABLE: Review-Book-${self:provider.stage}
     REVIEW_BOOK_ID_INDEX: bookIdIndex
-    REVIEW_USER_ID_INDEX: userIdIndex
-    REVIEW_LIKE_COUNT_INDEX: likeCountIndex
+    REVIEW_CREATED_DATE_INDEX: createdDateIndex
+    REVIEW_REVIEW_ID_INDEX: reviewIdIndex
     IMAGES_S3_BUCKET: sls-review-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    AUTH_0_SECRET_ID: Auth0Secret-${self:provider.stage}
+    AUTH_0_SECRET_ID: ReviewAuth0Secret-${self:provider.stage}
     AUTH_0_SECRET_FIELD: auth0Secret  
 
   iamRoleStatements:
@@ -48,13 +43,14 @@ provider:
     - Effect: Allow
       Action:
         - secretsmanager:GetSecretValue
-      Resource: !Ref Auth0Secret
+      Resource: !Ref ReviewAuth0Secret
     - Effect: Allow
       Action:
         - kms:Decrypt
       Resource: !GetAtt KMSKey.Arn
 
 custom:
+
   documentation:
     api:
       info:
@@ -62,35 +58,12 @@ custom:
         title: Book Review API
         description: Serverless application for managing Book Reviewing
     models:
-      # - name: BookReservationCreateRequest
-      #   contentType: application/json
-      #   schema: ${file(models/create-reservation-request.json)}
-      # - name: BookReservationUpdateRequest
-      #   contentType: application/json
-      #   schema: ${file(models/update-reservation-request.json)}
-      # - name: WaitBookCreateRequest
-      #   contentType: application/json
-      #   schema: ${file(models/create-waiting-request.json)}
-      # - name: WaitingBookUpdateRequest
-      #   contentType: application/json
-      #   schema: ${file(models/update-waiting-request.json)}
       - name: ReviewCreateRequest
         contentType: application/json
         schema: ${file(models/create-review-request.json)}
       - name: ReviewUpdateRequest
         contentType: application/json
         schema: ${file(models/update-review-request.json)}
-
-  dynamodb:
-    start:
-      seed: true
-
-    seed:
-      # Categories of data. We can optionally load just some of them
-      books:
-        sources:
-          - table: ${self:provider.environment.BOOK_TABLE}
-            sources: [seedData/books.json]
 
 functions:
 
@@ -104,6 +77,7 @@ functions:
           method: get
           path: books
           cors: true
+          authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -133,10 +107,6 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_BOOK_ID_INDEX}
       - Effect: Allow
         Action:
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_USER_ID_INDEX} 
-      - Effect: Allow
-        Action:
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*      
       - Effect: "Allow" # xray permissions (required)
@@ -153,7 +123,12 @@ functions:
           method: get
           path: books/{bookId}/review
           cors: true
+          authorizer: Auth
     iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.BOOK_TABLE}
       - Effect: Allow
         Action:
           - dynamodb:Scan
@@ -165,10 +140,6 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_BOOK_ID_INDEX}
       - Effect: Allow
         Action:
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_USER_ID_INDEX} 
-      - Effect: Allow
-        Action:
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*      
       - Effect: "Allow" # xray permissions (required)
@@ -177,216 +148,6 @@ functions:
           - "xray:PutTelemetryRecords"
         Resource:
           - "*"     
-
-  # TODO: Configure this function
-  # GetBookReservation:
-  #   handler: src/lambda/http/reservation/getBookReservation.handler
-  #   events:
-  #     - http:
-  #         method: get
-  #         path: books/reserve
-  #         cors: true
-  #         authorizer: Auth
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RESERVE_TABLE}
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RESERVE_TABLE}/index/${self:provider.environment.RESERVE_BOOK_ID_INDEX}
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RESERVE_TABLE}/index/${self:provider.environment.RESERVE_DUEDATE_INDEX}    
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-          
-  # # TODO: Configure this function
-  # CreateBookReservation:
-  #   handler: src/lambda/http/reservation/createBookReservation.handler
-  #   events:
-  #     - http:
-  #         method: post
-  #         path: books/reserve
-  #         cors: true
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Create a new Book Reservation
-  #           description: Create a new Book Reservation
-  #           requestModels:
-  #             'application/json': BookReservationCreateRequest
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #       - dynamodb:PutItem
-  #       - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RESERVE_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-
-  # # TODO: Configure this function
-  # UpdateBookReservation:
-  #   handler: src/lambda/http/reservation/updateBookReservation.handler
-  #   events:
-  #     - http:
-  #         method: patch
-  #         path: books/reserve/{reserveId}
-  #         cors: true
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Update existing Book Reservation
-  #           description: Update existing Book Reservation
-  #           requestModels:
-  #             'application/json': BookReservationUpdateRequest
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #       - dynamodb:Query
-  #       - dynamodb:UpdateItem
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RESERVE_TABLE}  
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-
-  # # TODO: Configure this function
-  # DeleteBookReservation:
-  #   handler: src/lambda/http/reservation/deleteBookReservation.handler
-  #   events:
-  #     - http:
-  #         method: delete
-  #         authorizer: Auth
-  #         path: books/reserve/{reserveId}
-  #         cors: true
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #       - dynamodb:DeleteItem
-  #       - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.RESERVE_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-
-  # # TODO: Configure this function
-  # GetWaitingBook:
-  #   handler: src/lambda/http/waitingBook/getWaitingBook.handler
-  #   events:
-  #     - http:
-  #         method: get
-  #         path: books/waiting
-  #         cors: true
-  #         authorizer: Auth
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.WAITLIST_TABLE}
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.WAITLIST_TABLE}/index/${self:provider.environment.WAITLIST_BOOK_ID_INDEX}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-          
-  # # TODO: Configure this function
-  # CreateWaitingBook:
-  #   handler: src/lambda/http/waitingBook/createWaitingBook.handler
-  #   events:
-  #     - http:
-  #         method: post
-  #         path: books/waiting
-  #         cors: true
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Create a new Waiting Book
-  #           description: Create a new Waiting Book
-  #           requestModels:
-  #             'application/json': WaitBookCreateRequest
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #       - dynamodb:PutItem
-  #       - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.WAITLIST_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-
-  # # TODO: Configure this function
-  # UpdateWaitingBook:
-  #   handler: src/lambda/http/waitingBook/updateWaitingBook.handler
-  #   events:
-  #     - http:
-  #         method: patch
-  #         path: books/waiting/{waitingId}
-  #         cors: true
-  #         authorizer: Auth
-  #         reqValidatorName: RequestBodyValidator
-  #         documentation:
-  #           summary: Update existing Waiting Book
-  #           description: Update existing Waiting Book
-  #           requestModels:
-  #             'application/json': WaitingBookUpdateRequest
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #       - dynamodb:Query
-  #       - dynamodb:UpdateItem
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.WAITLIST_TABLE}  
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
-
-  # # TODO: Configure this function
-  # DeleteWaitingBook:
-  #   handler: src/lambda/http/waitingBook/deleteWaitingBook.handler
-  #   events:
-  #     - http:
-  #         method: delete
-  #         authorizer: Auth
-  #         path: books/waiting/{waitingId}
-  #         cors: true
-  #   iamRoleStatements:
-  #     - Effect: Allow
-  #       Action:
-  #       - dynamodb:DeleteItem
-  #       - dynamodb:Query
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.WAITLIST_TABLE}
-  #     - Effect: "Allow" # xray permissions (required)
-  #       Action:
-  #         - "xray:PutTraceSegments"
-  #         - "xray:PutTelemetryRecords"
-  #       Resource:
-  #         - "*"      
 
   # TODO: Configure this function
   GetReview:
@@ -409,11 +170,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_USER_ID_INDEX}    
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_LIKE_COUNT_INDEX}    
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_CREATED_DATE_INDEX} 
       - Effect: "Allow" # xray permissions (required)
         Action:
           - "xray:PutTraceSegments"
@@ -427,7 +184,7 @@ functions:
     events:
       - http:
           method: post
-          path: books/review/{bookId}
+          path: books/review
           cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
@@ -474,7 +231,7 @@ functions:
         Action:
         - dynamodb:Query
         - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}  
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
@@ -501,7 +258,11 @@ functions:
         Action:
         - dynamodb:Query
         - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}  
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_REVIEW_ID_INDEX}
       - Effect: "Allow" # xray permissions (required)
         Action:
           - "xray:PutTraceSegments"
@@ -523,7 +284,11 @@ functions:
         Action:
         - dynamodb:Query
         - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}  
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.REVIEW_TABLE}/index/${self:provider.environment.REVIEW_REVIEW_ID_INDEX}
       - Effect: "Allow" # xray permissions (required)
         Action:
           - "xray:PutTraceSegments"
@@ -570,7 +335,7 @@ functions:
       - http:
           method: post
           authorizer: Auth
-          path: books/{reviewId}/attachment
+          path: books/review/{reviewId}/attachment
           cors: true
     iamRoleStatements:
       - Effect: Allow
@@ -604,70 +369,6 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    # ReserveBookTable:
-    #   Type: AWS::DynamoDB::Table
-    #   Properties:
-    #     AttributeDefinitions:
-    #       - AttributeName: userId
-    #         AttributeType: S
-    #       - AttributeName: reserveId
-    #         AttributeType: S
-    #       - AttributeName: bookId
-    #         AttributeType: S           
-    #       - AttributeName: dueDate
-    #         AttributeType: S     
-    #     KeySchema:
-    #       - AttributeName: userId
-    #         KeyType: HASH
-    #       - AttributeName: reserveId
-    #         KeyType: RANGE
-    #     BillingMode: PAY_PER_REQUEST
-    #     TableName: ${self:provider.environment.RESERVE_TABLE}
-    #     LocalSecondaryIndexes:
-    #       - IndexName: ${self:provider.environment.RESERVE_BOOK_ID_INDEX}
-    #         KeySchema:
-    #           - AttributeName: userId
-    #             KeyType: HASH
-    #           - AttributeName: bookId
-    #             KeyType: RANGE
-    #         Projection:
-    #           ProjectionType: ALL # What attributes will be copied to an index
-    #       - IndexName: ${self:provider.environment.RESERVE_DUEDATE_INDEX}
-    #         KeySchema:
-    #           - AttributeName: userId
-    #             KeyType: HASH
-    #           - AttributeName: dueDate
-    #             KeyType: RANGE
-    #         Projection:
-    #           ProjectionType: ALL # What attributes will be copied to an index
-
-    # WaitListBookTable:
-    #   Type: AWS::DynamoDB::Table
-    #   Properties:
-    #     AttributeDefinitions:
-    #       - AttributeName: userId
-    #         AttributeType: S
-    #       - AttributeName: waitingId
-    #         AttributeType: S
-    #       - AttributeName: bookId
-    #         AttributeType: S
-    #     KeySchema:
-    #       - AttributeName: userId
-    #         KeyType: HASH
-    #       - AttributeName: waitingId
-    #         KeyType: RANGE
-    #     BillingMode: PAY_PER_REQUEST
-    #     TableName: ${self:provider.environment.WAITLIST_TABLE}
-    #     LocalSecondaryIndexes:
-    #       - IndexName: ${self:provider.environment.WAITLIST_BOOK_ID_INDEX}
-    #         KeySchema:
-    #           - AttributeName: userId
-    #             KeyType: HASH
-    #           - AttributeName: bookId
-    #             KeyType: RANGE
-    #         Projection:
-    #           ProjectionType: ALL # What attributes will be copied to an index
-
     BooksTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -686,7 +387,7 @@ resources:
           - AttributeName: bookId
             KeyType: HASH
           - AttributeName: title
-            KeyType: RANGE
+            KeyType: RANGE            
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.BOOK_TABLE}
         LocalSecondaryIndexes:
@@ -726,11 +427,11 @@ resources:
           - AttributeName: bookId
             AttributeType: S
           - AttributeName: userId
-            AttributeType: S
+            AttributeType: S          
         KeySchema:
-          - AttributeName: reviewId
+          - AttributeName: userId
             KeyType: HASH
-          - AttributeName: createDate
+          - AttributeName: reviewId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         StreamSpecification:
@@ -745,22 +446,21 @@ resources:
               KeyType: RANGE
             Projection:
               ProjectionType: ALL
-          - IndexName: ${self:provider.environment.REVIEW_USER_ID_INDEX}
+          - IndexName: ${self:provider.environment.REVIEW_REVIEW_ID_INDEX}
             KeySchema:
-            - AttributeName: userId
+            - AttributeName: reviewId
               KeyType: HASH
-            - AttributeName: createDate
-              KeyType: RANGE
             Projection:
               ProjectionType: ALL
-          - IndexName: ${self:provider.environment.REVIEW_LIKE_COUNT_INDEX}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.REVIEW_CREATED_DATE_INDEX}
             KeySchema:
-            - AttributeName: userId
-              KeyType: HASH
-            - AttributeName: likeCount
-              KeyType: RANGE
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createDate
+                KeyType: RANGE
             Projection:
-              ProjectionType: ALL
+              ProjectionType: ALL # What attributes will be copied to an index
 
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
@@ -828,10 +528,10 @@ resources:
     KMSKeyAlias:
       Type: AWS::KMS::Alias
       Properties:
-        AliasName: alias/todoAuth0Key-${self:provider.stage}
+        AliasName: alias/reviewAuth0Key-${self:provider.stage}
         TargetKeyId: !Ref KMSKey
 
-    Auth0Secret:
+    ReviewAuth0Secret:
       Type: AWS::SecretsManager::Secret
       Properties:
         Name: ${self:provider.environment.AUTH_0_SECRET_ID}

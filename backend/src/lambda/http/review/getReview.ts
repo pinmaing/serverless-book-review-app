@@ -2,7 +2,7 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { getAllReviews } from '../../../businessLogic/reviews'
-import {getUserId, getProccessId,parseNextKeyParameter, parseLimitParameter, encodeNextKey } from '../utils'
+import {getUserId, getProccessId,parseNextKeyParameter, parseLimitParameter, encodeNextKey } from '../../utils'
 import { createLogger} from '../../../utils/logger'
 
 const logger = createLogger('getBookReview')

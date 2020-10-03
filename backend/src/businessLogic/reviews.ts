@@ -22,13 +22,13 @@ export async function getBookAllReviews(bookId: string,limit: number, nextKey: S
 
 export async function createReview(
   createReviewRequest: CreateBookReviewRequest,
-  userId: string, bookId: string): Promise<ReviewItem> {
+  userId: string): Promise<ReviewItem> {
 
   const reviewId = uuid.v4()
 
   const newReview = await reviewAccess.createReview({
     userId: userId,
-    bookId: bookId,
+    bookId: createReviewRequest.bookId,
     reviewId: reviewId,
     title: createReviewRequest.title,
     comment: createReviewRequest.comment,
@@ -38,8 +38,8 @@ export async function createReview(
     disLikeCount: 0
   })
 
-  bookAccess.updateBook(bookId,newReview.point)
-  bookAccess.updateBookReviewCount(bookId,1)
+  await bookAccess.updateBook(createReviewRequest.bookId,newReview.point)
+  await bookAccess.updateBookReviewCount(createReviewRequest.bookId,1)
   return newReview
 
 }
@@ -62,7 +62,7 @@ export async function increaseReviewLike(
   reviewId: string) {
 
   await reviewAccess.increaseReviewLike(
-    userId, 
+    userId,
     reviewId)
 }
 
@@ -71,7 +71,7 @@ export async function increaseReviewDisLike(
   reviewId: string) {
 
   await reviewAccess.increaseReviewDisLike(
-    userId, 
+    userId,
     reviewId)
 }
 
@@ -82,8 +82,8 @@ export async function deleteReview(
   const delReview = await reviewAccess.deleteReview(userId, reviewId)
   if(delReview.attachmentUrl) await reviewFileAccess.deleteAttachment(delReview.reviewId)
 
-  bookAccess.updateBook(delReview.bookId,(-delReview.point))
-  bookAccess.updateBookReviewCount(delReview.bookId,(-1))
+  await bookAccess.updateBook(delReview.bookId,(-delReview.point))
+  await bookAccess.updateBookReviewCount(delReview.bookId,(-1))
 }
 
 export async function reviewExists(
@@ -92,6 +92,12 @@ export async function reviewExists(
 
   const result = await reviewAccess.getReview(userId, reviewId)
   return !!result
+}
+
+export async function getReviewById(
+  reviewId: string) : Promise<ReviewItem>{
+
+  return await reviewAccess.getReviewById(reviewId)
 }
 
 export async function getUploadUrl(

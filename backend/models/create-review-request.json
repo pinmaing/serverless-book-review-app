@@ -3,6 +3,9 @@
   "title": "todo",
   "type": "object",
   "properties": {
+    "bookId": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
@@ -20,6 +23,7 @@
     }
   },
   "required": [
+    "bookId",
     "title",
     "comment",
     "point"

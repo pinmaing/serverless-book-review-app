@@ -35,7 +35,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   if (!updatedReview.title || !updatedReview.comment) {
-    logger.info(`ProcessId ${procId} : Title or Comment must not be empty to create BookReview for Book : ${bookId}`)
+    logger.info(`ProcessId ${procId} : Title or Comment must not be empty to update BookReview : ${reviewId}`)
   
       return {
         statusCode: 400,

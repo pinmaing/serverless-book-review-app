@@ -15,14 +15,29 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // Implement creating a new TODO item
   const procId = getProccessId()
   const userId = getUserId(event);
-  const bookId = event.pathParameters.bookId
+  // const bookId = event.pathParameters.bookId
 
-  logger.info(`ProcessId ${procId} : Start to create BookReview for Book : ${bookId}`)
+  logger.info(`ProcessId ${procId} : Start to create BookReview for Book : ${newBookReview.bookId}`)
 
-  const validReviewId = await bookExists(bookId)
+  if (!newBookReview.bookId) {
+    logger.info(`ProcessId ${procId} : BookId must not be empty to create Review for Book`)
+  
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true
+        },
+        body: JSON.stringify({
+          error: 'Invalid request body : BookId must not be empty'
+        })
+      }
+    }
+
+  const validReviewId = await bookExists(newBookReview.bookId)
 
   if (!validReviewId) {
-  logger.info(`ProcessId ${procId} : Invalid BookId : ${bookId} to give review`)
+  logger.info(`ProcessId ${procId} : Invalid BookId : ${newBookReview.bookId} to give review`)
 
     return {
       statusCode: 404,
@@ -37,7 +52,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   if (!newBookReview.title || !newBookReview.comment) {
-    logger.info(`ProcessId ${procId} : Title or Comment must not be empty to create BookReview for Book : ${bookId}`)
+    logger.info(`ProcessId ${procId} : Title or Comment must not be empty to create BookReview for Book : ${newBookReview.bookId}`)
   
       return {
         statusCode: 400,
@@ -57,14 +72,14 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
           'Access-Control-Allow-Credentials': true
         },
         body: JSON.stringify({
-          error: 'Invalid request body : Point Mush be Between (1~5)'
+          error: 'Invalid request body : Point Must be Between (1~5)'
         })
       }
     }
 
-  const item = await createReview(newBookReview, userId,bookId)
+  const item = await createReview(newBookReview, userId)
 
-  logger.info(`ProcessId ${procId} : Finish to create BookReview for Book : ${bookId}`)
+  logger.info(`ProcessId ${procId} : Finish to create BookReview for Book : ${newBookReview.bookId}`)
   return {
     statusCode: 201,
     headers: {

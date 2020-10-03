@@ -6,7 +6,9 @@
     "edition": "1st Edition",
     "publisher": "Mr. Jhon",
     "publishDate": "2012-01-01",
-    "attachementUrl": "s3://"
+    "attachementUrl": "s3://",
+    "point": 0,
+    "reviewCount": 0
   },
   {
     "bookId": "2",
@@ -15,7 +17,9 @@
     "edition": "1st Edition",
     "publisher": "Mr. Jhon",
     "publishDate": "2012-01-01",
-    "attachementUrl": "s3://"
+    "attachementUrl": "s3://",
+    "point": 0,
+    "reviewCount": 0
   },
   {
     "bookId": "3",
@@ -24,7 +28,9 @@
     "edition": "1st Edition",
     "publisher": "Mr. Jhon",
     "publishDate": "2012-01-01",
-    "attachementUrl": "s3://"
+    "attachementUrl": "s3://",
+    "point": 0,
+    "reviewCount": 0
   },
   {
     "bookId": "4",
@@ -33,7 +39,9 @@
     "edition": "1st Edition",
     "publisher": "Mr. Jhon",
     "publishDate": "2012-01-01",
-    "attachementUrl": "s3://"
+    "attachementUrl": "s3://",
+    "point": 0,
+    "reviewCount": 0
   },
   {
     "bookId": "5",
@@ -42,7 +50,9 @@
     "edition": "1st Edition",
     "publisher": "Mr. Jhon",
     "publishDate": "2012-01-01",
-    "attachementUrl": "s3://"
+    "attachementUrl": "s3://",
+    "point": 0,
+    "reviewCount": 0
   }
 
 ]

@@ -2,7 +2,7 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 
-import { increaseReviewDisLike,reviewExists } from '../../../businessLogic/reviews'
+import { increaseReviewDisLike, getReviewById } from '../../../businessLogic/reviews'
 import {getUserId, getProccessId } from '../../utils'
 import { createLogger} from '../../../utils/logger'
 
@@ -15,9 +15,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const userId = getUserId(event);
   logger.info(`ProcessId ${procId} : Start to increase Review Like Count of Review : ${reviewId} for User : ${userId}`)
 
-  const validReviewId = await reviewExists(userId,reviewId)
+  const validReview = await getReviewById(reviewId)
 
-  if (!validReviewId) {
+  if (!validReview) {
     logger.info(`ProcessId ${procId} : Invalid to increase Review Like Count of Review : ${reviewId} for User : ${userId}`)
 
     return {
@@ -32,7 +32,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }
 
-  await increaseReviewDisLike(userId, reviewId)
+  await increaseReviewDisLike(validReview.userId, reviewId)
   logger.info(`ProcessId ${procId} : Finish to increase Review Like Count of Review : ${reviewId} for User : ${userId}`)
   
   return {

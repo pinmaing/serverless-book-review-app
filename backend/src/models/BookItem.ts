@@ -1,4 +1,3 @@
-import {ReviewItem} from "./ReviewItem"
 export interface BookItem {
   bookId: string
   title: string

@@ -1,8 +1,6 @@
-import * as AWS  from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
-const XAWS = AWSXRay.captureAWS(AWS)
+import {createDynamoDBClient} from './utils'
 
 import { ReviewItem } from '../models/ReviewItem'
 import {ReviewItemList} from '../models/ReviewItemList'
@@ -11,11 +9,12 @@ import { ReviewUpdate } from '../models/ReviewUpdate'
 export class ReviewAccess {
 
   constructor(
-    private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
+    private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly reviewsTable = process.env.REVIEW_TABLE,
     private readonly bookIdIndex = process.env.REVIEW_BOOK_ID_INDEX,
-    private readonly userIdIndex = process.env.REVIEW_USER_ID_INDEX,
-    private readonly likeCountIndex = process.env.REVIEW_LIKE_COUNT_INDEX,
+    private readonly reviewIndex = process.env.REVIEW_REVIEW_ID_INDEX,
+    // private readonly userIdIndex = process.env.REVIEW_USER_ID_INDEX,
+    // private readonly locUserIdIndex = process.env.REVIEW_LOC_USER_ID_INDEX,
     private readonly bucketName = process.env.IMAGES_S3_BUCKET) {
   }
 
@@ -50,7 +49,7 @@ export class ReviewAccess {
   async getAllReviewsByUserId(userId: string,limit: number, nextKey: String): Promise<ReviewItemList> {
     const result = await this.docClient.query({
       TableName: this.reviewsTable,
-      IndexName : this.userIdIndex,
+      // IndexName : this.userIdIndex,
       Limit: limit,
       ExclusiveStartKey: nextKey,
       KeyConditionExpression: 'userId = :userId',
@@ -62,7 +61,7 @@ export class ReviewAccess {
         '#reviewComment': "comment"
       },
       ProjectionExpression: 
-        "reviewId, bookId, createDate, #reviewTitle, #reviewComment, attachmentUrl, point, likeCount, DisLikeCount"
+        "reviewId, bookId, createDate, #reviewTitle, #reviewComment, attachmentUrl, point, likeCount, disLikeCount"
       
     }).promise()
 
@@ -87,9 +86,10 @@ export class ReviewAccess {
   async updateReview(review: ReviewUpdate,userId: string, reviewId: string) {
     var params = {
       TableName:this.reviewsTable,
+      // IndexName: this.locUserIdIndex,
       Key:{
-        userId: userId,
-        reviewId: reviewId
+        reviewId: reviewId,
+        userId: userId
       },
       UpdateExpression: "set #reviewTitle = :reviewTitle, #reviewComment=:reviewComment",
       ExpressionAttributeNames:{
@@ -105,27 +105,36 @@ export class ReviewAccess {
     await this.docClient.update(params).promise()
   }
 
-  async increaseReviewLike(userId: string, reviewId: string) {
+  async increaseReviewLike(userId:string, reviewId: string) {
+    console.log("increaseReviewLike " + userId + "  reviewId  "+reviewId)
     var params = {
       TableName:this.reviewsTable,
+      // IndexName: this.reviewIndex,
       Key:{
-        userId: userId,
-        reviewId: reviewId
+        reviewId: reviewId,
+        userId: userId
       },
-      UpdateExpression: "set likeCount= likeCount + 1",
+      UpdateExpression: "set likeCount = likeCount + :likeCount",
+      ExpressionAttributeValues:{
+        ":likeCount": 1
+    },
       ReturnValues:"UPDATED_NEW"
   };
     await this.docClient.update(params).promise()
   }
 
-  async increaseReviewDisLike(userId: string, reviewId: string) {
+  async increaseReviewDisLike(userId:string, reviewId: string) {
     var params = {
       TableName:this.reviewsTable,
+      // IndexName: this.reviewIndex,
       Key:{
-        userId: userId,
-        reviewId: reviewId
+        reviewId: reviewId,
+        userId: userId
       },
-      UpdateExpression: "set disLikeCount= disLikeCount + 1",
+      UpdateExpression: "set disLikeCount = disLikeCount + :disLikeCount",
+      ExpressionAttributeValues:{
+        ":disLikeCount": 1
+      },
       ReturnValues:"UPDATED_NEW"
   };
     await this.docClient.update(params).promise()
@@ -134,7 +143,7 @@ export class ReviewAccess {
   async deleteReview(userId: string, reviewId: string): Promise<ReviewItem> {
     var params = {
       TableName: this.reviewsTable,
-      IndexName : this.userIdIndex,
+      // IndexName : this.userIdIndex,
       Key: {
         userId: userId,
         reviewId: reviewId
@@ -150,7 +159,7 @@ export class ReviewAccess {
   async getReview(userId: string, reviewId: string): Promise<ReviewItem> {
     const result = await this.docClient.query({
       TableName: this.reviewsTable,
-      IndexName : this.userIdIndex,
+      // IndexName : this.userIdIndex,
       KeyConditionExpression: 'userId = :userId and reviewId = :reviewId ',
       ExpressionAttributeValues: {
         ':reviewId': reviewId,
@@ -161,25 +170,41 @@ export class ReviewAccess {
         '#reviewComment': "comment"
       },
       ProjectionExpression: 
-        "reviewId, bookId, createDate, #reviewTitle, #reviewComment, attachmentUrl, point, likeCount, DisLikeCount"
+        "reviewId, bookId, createDate, #reviewTitle, #reviewComment, attachmentUrl, point, likeCount, disLikeCount"
       
     }).promise()
     if (result.Items.length === 0) return null
     return result.Items[0] as ReviewItem
   }
-  
+
+  async getReviewById(reviewId: string): Promise<ReviewItem> {
+    const result = await this.docClient.query({
+      TableName: this.reviewsTable,
+      IndexName: this.reviewIndex,
+      KeyConditionExpression: 'reviewId = :reviewId ',
+      ExpressionAttributeValues: {
+        ':reviewId': reviewId
+      },
+      ProjectionExpression: 
+        "reviewId, userId, bookId"
+      
+    }).promise()
+
+    if (result.Items.length === 0) return null
+    return result.Items[0] as ReviewItem
+  }
 
   async updateAttachmentURLReview(userId: string,reviewId: string) {
     var params = {
       TableName:this.reviewsTable,
-      IndexName : this.userIdIndex,
+      // IndexName : this.userIdIndex,
       Key:{
         userId: userId,
         reviewId: reviewId
       },
       UpdateExpression: "set attachmentUrl = :attachmentUrl",
       ExpressionAttributeValues:{
-          ":attachmentUrl": `https://${this.bucketName}.s3.amazonaws.com/${reviewId}`
+          ":attachmentUrl": `https://${this.bucketName}.s3.amazonaws.com/review/${reviewId}`
       },
       ReturnValues:"UPDATED_NEW"
   };
