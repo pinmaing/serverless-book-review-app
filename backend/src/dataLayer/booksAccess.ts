@@ -1,5 +1,4 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-// import { updateBook } from '../businessLogic/books'
 
 import { BookItem } from '../models/BookItem'
 import {BookItemList} from '../models/BookItemList'
@@ -84,7 +83,7 @@ export class BookAccess {
           '#reviewCount': "reviewCount"
       },
       ExpressionAttributeValues:{
-          ":reviewCount": reviewCount
+          ":reviewCount": 1
       },
       ReturnValues:"UPDATED_NEW"
   };

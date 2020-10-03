@@ -13,3 +13,10 @@ export function createDynamoDBClient() {
 
   return new XAWS.DynamoDB.DocumentClient()
 }
+
+export function createApiGatewayManagementApi() {
+  return new XAWS.ApiGatewayManagementApi({
+    apiVersion: "2018-11-29",
+    endpoint: `${process.env.API_ID}.execute-api.ap-northeast-1.amazonaws.com/${process.env.STAGE}`
+  })
+}
