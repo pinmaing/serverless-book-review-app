@@ -3,7 +3,7 @@ export interface BookItem {
   title: string
   edition: string
   category: string
-  publisher: string
+  author: string
   publishDate: string
   point: number
   attachmentUrl: string

@@ -4,7 +4,8 @@ To implement this project, you need to implement a simple Book Review applicatio
 
 # Functionality of the application
 
-This application will allow fetching Book items and Review related with associated Book. And then it will also allow creating/removing/updating/fetching Review items. Each Review item can optionally have an attachment image. Each Login user has permission to fetch Book and Review related with Book and rate the review. Each login user only has permission to update/remove to Review items that he/she has created.
+This application will allow fetching Book items and Review related with associated Book. And then it will also allow creating/removing/updating/fetching Review items. Each Review item can optionally have an attachment image. Each Login user has permission to fetch Book and Review related with Book and rate the review. Each login user only has permission to update/remove to Review items that he/she has created. When new review was inserted, the user who connected to WebSocket will receive the message.
+Data will be streaming to ElasticSearch when new Review was added to Dynamodb. User can search Review information via Kibana Dashboard.
 
 # REVIEW items
 
@@ -62,6 +63,23 @@ All functions are already connected to appropriate events from API Gateway.
 An id of a user can be extracted from a JWT token passed by a client.
 
 Add any necessary resources to the `resources` section of the `serverless.yml` file such as DynamoDB table and S3 bucket.
+
+## WebSocket
+* `Connect` - insert connection information when user connect to WebSocket. User will get message when application was inserted new REVIEW item.
+
+wscat -c wss://8yucscit34.execute-api.ap-northeast-1.amazonaws.com/dev
+
+* `DisConnect` - delete connection information when user disconnect to WebSocket. 
+
+press CTRL+C to quit
+
+## Data Streaming to Elastic 
+* `elasticSearchSync` - insert streaming data from Dynamodb Review Table to Elastic. Newly inserted Review will index to Elastic. Can search via kibana.
+
+```
+Kibana URL : 
+https://search-reviews-search-dev-vsuhezecxedf2uqscpcrlbqmci.ap-northeast-1.es.amazonaws.com/_plugin/kibana/
+```
 
 ## Logging
 

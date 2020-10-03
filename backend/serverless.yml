@@ -23,11 +23,11 @@ provider:
     apiGateway: true
 
   environment:
-    BOOK_TABLE: Book-${self:provider.stage}
-    BOOK_PUBLISHER_INDEX: publisherIndex
+    BOOK_TABLE: Books-${self:provider.stage}
+    BOOK_AUTHOR_INDEX: authorIndex
     BOOK_PUBLISH_DATE_INDEX: publishDateIndex
     BOOK_POINT_INDEX: pointIndex
-    REVIEW_TABLE: Review-Book-${self:provider.stage}
+    REVIEW_TABLE: Review-Books-${self:provider.stage}
     REVIEW_BOOK_ID_INDEX: bookIdIndex
     REVIEW_CREATED_DATE_INDEX: createdDateIndex
     REVIEW_REVIEW_ID_INDEX: reviewIdIndex
@@ -120,7 +120,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.BOOK_TABLE}/index/${self:provider.environment.BOOK_PUBLISHER_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.BOOK_TABLE}/index/${self:provider.environment.BOOK_AUTHOR_INDEX}
       - Effect: Allow
         Action:
           - dynamodb:Query
@@ -428,6 +428,9 @@ functions:
   SyncWithES:
     environment:
       ES_ENDPOINT: !GetAtt ReviewsSearch.DomainEndpoint
+      STAGE: ${self:provider.stage}
+      API_ID:
+        Ref: WebsocketsApi
     handler: src/lambda/dynamoDb/elasticSearchSync.handler
     events:
       - stream:
@@ -441,6 +444,11 @@ functions:
         - dynamodb:PutItem
         - dynamodb:DeleteItem
       Resource: arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.CONNECTIONS_TABLE}
+    - Effect: Allow
+      Action:
+        - execute-api:ManageConnections
+      Resource: 
+        - "*"
     - Effect: "Allow" # xray permissions (required)
       Action:
         - "xray:PutTraceSegments"
@@ -470,7 +478,7 @@ resources:
             AttributeType: S
           - AttributeName: title
             AttributeType: S
-          - AttributeName: publisher
+          - AttributeName: author
             AttributeType: S
           - AttributeName: publishedDate
             AttributeType: S
@@ -484,11 +492,11 @@ resources:
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.BOOK_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.BOOK_PUBLISHER_INDEX}
+          - IndexName: ${self:provider.environment.BOOK_AUTHOR_INDEX}
             KeySchema:
               - AttributeName: bookId
                 KeyType: HASH
-              - AttributeName: publisher
+              - AttributeName: author
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
@@ -596,85 +604,6 @@ resources:
 
         AdvancedOptions:
           rest.action.multi.allow_explicit_index: "true"
-        # RoleArn: 
-        #   Fn::GetAtt: [ESRole, Arn]    
-        # VPCOptions: 
-        #   SubnetIds: 
-        #     - !Ref ESSubnetA 
-        #   SecurityGroupIds: 
-        #     - !Ref ESSecurityGroup
-
-    # ESVPC:
-    #   Type: AWS::EC2::VPC
-    #   Properties:
-    #     CidrBlock: "10.1.0.0/16"
-    #     EnableDnsSupport: "true"
-    #     EnableDnsHostnames: "true"
-    #     Tags:
-    #       - Key: Name
-    #         Value: reviewtbl-search-vpc-${self:provider.stage}
-
-    # ESSubnetA:
-    #   DependsOn: ESVPC
-    #   Type: AWS::EC2::Subnet
-    #   Properties:
-    #     VpcId:
-    #       Ref: ESVPC
-    #     AvailabilityZone: ${self:provider.region}a
-    #     CidrBlock: "10.1.2.0/24"
-    #     Tags:
-    #       - Key: Name
-    #         Value: reviewtbl-search-subneta-${self:provider.stage}
-
-    # ESSecurityGroup:
-    #   DependsOn: ESVPC
-    #   Type: AWS::EC2::SecurityGroup
-    #   Properties:
-    #     GroupDescription: SecurityGroup for Elasticsearch
-    #     VpcId:
-    #       Ref: ESVPC
-    #     SecurityGroupIngress: 
-    #       - FromPort: '443' 
-    #         IpProtocol: tcp 
-    #         ToPort: '443' 
-    #         CidrIp: 0.0.0.0/0
-    #     Tags:
-    #       - Key: Name
-    #         Value: reviewtbl-search-sg-${self:provider.stage}
-
-    # ESRole:
-    #   Type: 'AWS::IAM::Role'
-    #   Properties:
-    #     AssumeRolePolicyDocument:
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         - Effect: Allow
-    #           Principal:
-    #             Service:
-    #               - es.amazonaws.com
-    #           Action:
-    #             - 'sts:AssumeRole'
-    #     Path: /
-    #     ManagedPolicyArns:
-    #       - !Ref ESManagedPolicy
-
-    # ESManagedPolicy:
-    #   Type: 'AWS::IAM::ManagedPolicy'
-    #   Properties:
-    #     PolicyDocument:
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         - Sid: ElasticVPCPermissions
-    #           Effect: Allow
-    #           Action:
-    #             - 'ec2:CreateNetworkInterface'
-    #             - 'ec2:DeleteNetworkInterface'
-    #             - 'ec2:DescribeNetworkInterfaces'
-    #             - 'ec2:ModifyNetworkInterfaceAttribute'
-    #             - 'ec2:DescribeSecurityGroups'
-    #             - 'ec2:DescribeSubnets'
-    #             - 'ec2:DescribeVpcs'
-    #           Resource: "*"
 
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator

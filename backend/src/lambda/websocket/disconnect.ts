@@ -12,7 +12,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const connectionId = event.requestContext.connectionId
   logger.info(`ProcessId ${procId} : Websocket disconnect : ${connectionId}`)
 
-
   await deleteConnection(connectionId)
   logger.info(`ProcessId ${procId} : Websocket disconnected : ${connectionId}`)
   return {

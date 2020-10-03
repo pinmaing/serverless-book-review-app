@@ -13,8 +13,6 @@ export class ReviewAccess {
     private readonly reviewsTable = process.env.REVIEW_TABLE,
     private readonly bookIdIndex = process.env.REVIEW_BOOK_ID_INDEX,
     private readonly reviewIndex = process.env.REVIEW_REVIEW_ID_INDEX,
-    // private readonly userIdIndex = process.env.REVIEW_USER_ID_INDEX,
-    // private readonly locUserIdIndex = process.env.REVIEW_LOC_USER_ID_INDEX,
     private readonly bucketName = process.env.IMAGES_S3_BUCKET) {
   }
 
@@ -49,7 +47,6 @@ export class ReviewAccess {
   async getAllReviewsByUserId(userId: string,limit: number, nextKey: String): Promise<ReviewItemList> {
     const result = await this.docClient.query({
       TableName: this.reviewsTable,
-      // IndexName : this.userIdIndex,
       Limit: limit,
       ExclusiveStartKey: nextKey,
       KeyConditionExpression: 'userId = :userId',
@@ -86,7 +83,6 @@ export class ReviewAccess {
   async updateReview(review: ReviewUpdate,userId: string, reviewId: string) {
     var params = {
       TableName:this.reviewsTable,
-      // IndexName: this.locUserIdIndex,
       Key:{
         reviewId: reviewId,
         userId: userId
@@ -106,10 +102,8 @@ export class ReviewAccess {
   }
 
   async increaseReviewLike(userId:string, reviewId: string) {
-    console.log("increaseReviewLike " + userId + "  reviewId  "+reviewId)
     var params = {
       TableName:this.reviewsTable,
-      // IndexName: this.reviewIndex,
       Key:{
         reviewId: reviewId,
         userId: userId
@@ -126,7 +120,6 @@ export class ReviewAccess {
   async increaseReviewDisLike(userId:string, reviewId: string) {
     var params = {
       TableName:this.reviewsTable,
-      // IndexName: this.reviewIndex,
       Key:{
         reviewId: reviewId,
         userId: userId
@@ -143,7 +136,6 @@ export class ReviewAccess {
   async deleteReview(userId: string, reviewId: string): Promise<ReviewItem> {
     var params = {
       TableName: this.reviewsTable,
-      // IndexName : this.userIdIndex,
       Key: {
         userId: userId,
         reviewId: reviewId
@@ -152,14 +144,12 @@ export class ReviewAccess {
   };
   
     const result = await this.docClient.delete(params).promise()
-    console.log(" Return Value " + result.Attributes)
     return result.Attributes as ReviewItem
   }
 
   async getReview(userId: string, reviewId: string): Promise<ReviewItem> {
     const result = await this.docClient.query({
       TableName: this.reviewsTable,
-      // IndexName : this.userIdIndex,
       KeyConditionExpression: 'userId = :userId and reviewId = :reviewId ',
       ExpressionAttributeValues: {
         ':reviewId': reviewId,
@@ -197,7 +187,6 @@ export class ReviewAccess {
   async updateAttachmentURLReview(userId: string,reviewId: string) {
     var params = {
       TableName:this.reviewsTable,
-      // IndexName : this.userIdIndex,
       Key:{
         userId: userId,
         reviewId: reviewId

@@ -9,7 +9,7 @@ export class BookAccess {
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly booksTable = process.env.BOOK_TABLE,
-    private readonly publisherIndex = process.env.BOOK_PUBLISHER_INDEX,
+    private readonly authorIndex = process.env.BOOK_AUTHOR_INDEX,
     private readonly publishDateIndex = process.env.BOOK_PUBLISH_DATE_INDEX,
     private readonly pointIndex = process.env.BOOK_POINT_INDEX) {
   }
@@ -18,16 +18,12 @@ export class BookAccess {
     let queryParam = {
       TableName: this.booksTable,
       Limit: limit,
-      ExclusiveStartKey: nextKey//,
-      // KeyConditionExpression: 'bookId = :bookId',
-      // ExpressionAttributeValues: {
-      //     ':bookId': bookId
-      // }
+      ExclusiveStartKey: nextKey
     }
 
     if(orderBy) {
-      if ("publisher" == orderBy.trim().toLowerCase()){
-        queryParam["IndexName"] = this.publisherIndex
+      if ("author" == orderBy.trim().toLowerCase()){
+        queryParam["IndexName"] = this.authorIndex
       } else if ("publishDate" == orderBy.trim().toLowerCase()) {
         queryParam["IndexName"] = this.publishDateIndex
       } else if ("point" == orderBy.trim().toLowerCase()){
@@ -47,7 +43,6 @@ export class BookAccess {
   }
 
   async updateBook(bookId: string,point: number) {
-    console.log("Update Book Review point : " + bookId + "   count  " + point)
     const old = await this.getBook(bookId)
 
     var params = {
@@ -65,12 +60,10 @@ export class BookAccess {
       },
       ReturnValues:"UPDATED_NEW"
   };
-  const updatedBook = await this.docClient.update(params).promise() 
-  console.log(updatedBook.Attributes)
+  await this.docClient.update(params).promise() 
   }
 
   async updateBookReviewCount(bookId: string, reviewCount: number) {
-    console.log("Update Book Review Count : " + bookId + "   count  " + reviewCount)
     const old = await this.getBook(bookId)
 
     var params = {
@@ -89,8 +82,7 @@ export class BookAccess {
   };
     if(reviewCount > 0) params["UpdateExpression"] = "set #reviewCount = #reviewCount + :reviewCount"
     else params["UpdateExpression"] = "set #reviewCount = #reviewCount - :reviewCount"
-    const updatedBook = await this.docClient.update(params).promise() 
-    console.log(updatedBook.Attributes)
+    await this.docClient.update(params).promise() 
   }
 
   async getBook(bookId: string): Promise<BookItem> {

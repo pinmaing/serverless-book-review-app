@@ -1,8 +1,8 @@
 import { ConnectionAccess } from '../dataLayer/connectionsAccess'
-
+import {ConnectionItem} from '../models/ConnectionItem'
 const connectionAccess = new ConnectionAccess()
 
-export async function getAllConnections() : Promise<any> {
+export async function getAllConnections() : Promise<ConnectionItem[]> {
   return connectionAccess.getAllConnections()
 }
 

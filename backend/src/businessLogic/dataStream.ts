@@ -37,7 +37,7 @@ export async function indexReview(records: DynamoDBRecord[]) {
       bookId: bookId
     }
 
-    for (const connection of connections.Items) {
+    for (const connection of connections) {
         const connectionId = connection.id
         await sendMessageToClient(connectionId, payload)
     }

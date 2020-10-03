@@ -1,5 +1,5 @@
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-
+import {ConnectionItem} from '../models/ConnectionItem'
 import {createDynamoDBClient} from './utils'
 
 export class ConnectionAccess {
@@ -9,11 +9,11 @@ export class ConnectionAccess {
     private readonly connectionsTable = process.env.CONNECTIONS_TABLE) {
   }
 
-  async getAllConnections(): Promise<any> {
+  async getAllConnections(): Promise<ConnectionItem[]> {
     const connections = await this.docClient.scan({
       TableName: this.connectionsTable
     }).promise()
-    return connections.Items
+    return connections.Items as ConnectionItem[]
   }
 
   async deleteConnection(connectionId: string){
@@ -25,7 +25,7 @@ export class ConnectionAccess {
     }).promise()
   }
 
-  async createConnection(item: {}){
+  async createConnection(item: ConnectionItem){
     await this.docClient.put({
       TableName: this.connectionsTable,
       Item: item
