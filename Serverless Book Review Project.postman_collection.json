@@ -1,0 +1,729 @@
+{
+	"info": {
+		"_postman_id": "c5da13cd-58ec-4526-ac3d-3ad79651ee77",
+		"name": "Serverless Book Review Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "BookReviews",
+			"item": [
+				{
+					"name": "Get all reviews",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review?limit=2",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "nextKey",
+									"value": "%7B%22todoId%22%3A%222530be37-348b-4725-b79f-112280b0f140%22%2C%22userId%22%3A%22google-oauth2%7C103749275902550188766%22%2C%22dueDate%22%3A%222019-12-11%22%7D",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all reviews (Account-B)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "nextKey",
+									"value": "%7B%22todoId%22%3A%222530be37-348b-4725-b79f-112280b0f140%22%2C%22userId%22%3A%22google-oauth2%7C103749275902550188766%22%2C%22dueDate%22%3A%222019-12-11%22%7D",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create review",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bookId\": \"1\",\n\t\"title\": \"Interesting!!\",\n\t\"comment\": \"This book is interesting and good\",\n\t\"point\": 4\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create review (Account-B)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"bookId\": \"2\",\n\t\"title\": \"Not So Bad!!\",\n\t\"comment\": \"This book is good\",\n\t\"point\": 3\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update review",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"title\": \"Interesting and Good!!\",\n\t\"comment\": \"This book is interesting and good for begineer!\"\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/639a344e-8a9b-4853-acbe-9b8d29912da3",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"639a344e-8a9b-4853-acbe-9b8d29912da3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update review (Account-B)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"title\": \"Interesting and Good!!\",\n\t\"comment\": \"This book is interesting and good for begineer!\"\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/e60541f7-720d-47b4-9e56-8cd6f0bf6e00",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"e60541f7-720d-47b4-9e56-8cd6f0bf6e00"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Increase like review Count",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Todo Update\",\n\t\"dueDate\": \"2021-02-11\",\n\t\"done\": true\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/70188ecd-c2a6-4c75-a455-36f7f3085aef/like",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"70188ecd-c2a6-4c75-a455-36f7f3085aef",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Increase like review Count (Account-B)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Todo Update\",\n\t\"dueDate\": \"2021-02-11\",\n\t\"done\": true\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/70188ecd-c2a6-4c75-a455-36f7f3085aef/like",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"70188ecd-c2a6-4c75-a455-36f7f3085aef",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Increase dislike review Count",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Todo Update\",\n\t\"dueDate\": \"2021-02-11\",\n\t\"done\": true\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/639a344e-8a9b-4853-acbe-9b8d29912da3/dislike",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"639a344e-8a9b-4853-acbe-9b8d29912da3",
+								"dislike"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Increase dislike review Count (Account-B)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Todo Update\",\n\t\"dueDate\": \"2021-02-11\",\n\t\"done\": true\n}"
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/todos/188f4938-d683-4f14-a66b-693c31fef4bd",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos",
+								"188f4938-d683-4f14-a66b-693c31fef4bd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete review",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/fe61d5d4-63ac-4df8-8506-b696ccdea7ba",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"fe61d5d4-63ac-4df8-8506-b696ccdea7ba"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete review (Account-B)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/70188ecd-c2a6-4c75-a455-36f7f3085aef",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"70188ecd-c2a6-4c75-a455-36f7f3085aef"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get attachment URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/639a344e-8a9b-4853-acbe-9b8d29912da3/attachment",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"639a344e-8a9b-4853-acbe-9b8d29912da3",
+								"attachment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get attachment URL (Account-B)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken2}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/review/0a98ef5f-8aec-4d9b-b4ce-ead9da41999d/attachment",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-northeast-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"books",
+								"review",
+								"0a98ef5f-8aec-4d9b-b4ce-ead9da41999d",
+								"attachment"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b788ea7b-60b1-458b-aa72-3d1e33bfc488",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "62bf2501-2efe-44dc-a750-fcd1deb49d1b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Get all books",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books?limit=2",
+					"protocol": "https",
+					"host": [
+						"{{apiId}}",
+						"execute-api",
+						"ap-northeast-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"dev",
+						"books"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "2"
+						},
+						{
+							"key": "nextKey",
+							"value": "%7B%22bookId%22%3A%221%22%2C%22title%22%3A%22Book%20Title%201%22%7D",
+							"disabled": true
+						},
+						{
+							"key": "orderBy",
+							"value": "point",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all bookReviews",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"url": {
+					"raw": "https://{{apiId}}.execute-api.ap-northeast-1.amazonaws.com/dev/books/1/review?limit=2",
+					"protocol": "https",
+					"host": [
+						"{{apiId}}",
+						"execute-api",
+						"ap-northeast-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"dev",
+						"books",
+						"1",
+						"review"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "2"
+						},
+						{
+							"key": "nextKey",
+							"value": "%7B%22todoId%22%3A%222530be37-348b-4725-b79f-112280b0f140%22%2C%22userId%22%3A%22google-oauth2%7C103749275902550188766%22%2C%22dueDate%22%3A%222019-12-11%22%7D",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "51f68bde-7a17-4695-bb33-b056d8538a74",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3ab85025-6c8a-4e56-b8b4-d00b4f614d76",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "dd76f277-206a-4e74-a17a-11579e8ebd60",
+			"key": "apiId",
+			"value": "68q22a845h"
+		},
+		{
+			"id": "752acccb-2162-48a8-a11c-54ee51e0b942",
+			"key": "authToken",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Imp6TDM1Q2NESEp2OTVrY19uN3dHRCJ9.eyJpc3MiOiJodHRwczovL2Rldi11ZGEudXMuYXV0aDAuY29tLyIsInN1YiI6Imdvb2dsZS1vYXV0aDJ8MTAzNzQ5Mjc1OTAyNTUwMTg4NzY2IiwiYXVkIjoiMkYzYUxUUnU3VFVsYTl0QjJhOFJUT056Y3RrSGt4cGUiLCJpYXQiOjE2MDEzMTE4OTcsImV4cCI6MTYwMTc0Mzg5NywiYXRfaGFzaCI6IlhBNEFhVGg2c01relAzMG5FbjBOQXciLCJub25jZSI6IlJObDYwSGlZLlRqcmc3WnQ0M0NTN0d5RnRPb2xUSzQ0In0.kM9c5IvQEIvXIwLD0v-_S7dGTbPXwuS3vfohpnL6BeUXHRA569kRmQHdrjPH5hUEAL0LwylINlG32FZ87rscPDWmKG8QVKgCk4_rJmtKDDt7P9oiYa07bFBT3c8nIyQxt-_LkIjRzmfCvg5d7_0E5Hw8lvQ7hxwA8QoxV7pijr4qMiXiDaD5n33XACWLLVgKjTo5RPPiE7waUVhbXjPdGm_SwW1ihHBfDJ18_V_Jxpczghg626vLI3_TA5FG-Ly_o7869j67Bnwase9SVjtEYrRj7JBm8ejeLjpBIiltrgr1iBjfHFyb4874a3_B1SHhC9DO35JGbEM-a0YNDjyuAQ"
+		},
+		{
+			"id": "1168319e-2817-4324-ad09-e10858b29566",
+			"key": "authToken2",
+			"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Imp6TDM1Q2NESEp2OTVrY19uN3dHRCJ9.eyJpc3MiOiJodHRwczovL2Rldi11ZGEudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNzJkOWUxNjMwMDI0MDA3MTkzYWY1MSIsImF1ZCI6IjJGM2FMVFJ1N1RVbGE5dEIyYThSVE9OemN0a0hreHBlIiwiaWF0IjoxNjAxNzU2NTQyLCJleHAiOjE2MDIxODg1NDIsImF0X2hhc2giOiJ6R0F5Sm9PRmlKUU81WTFlWUpZUzNnIiwibm9uY2UiOiJLMnVKVnBhX1I0WXkwNGsuWFlSYXpWNEZVLm13TzNJRCJ9.Oxu9ZHCfr4W7hLqRqGpGjIoa_4IGe2ZHijGJ87Qo7kB41fEMQ7x3CVLKBiBBYUPABwDBjxcn0lSN3qS-uMefTxPYQWifJaNnyTRrtPk9e8fk7XGzM4wmPc4vwWV5SounA_vfc029mcD_Mp4L4ApX5QXt-L8jDZDVu5wbv9fZeWbOgMNIrjyuM451H1472VyQatQXRP6dOYoceKxXXbv0TvIFDUnBZB0ecK5h2E3nCZzjLcE1HeEfphN17b9UcBbgQGGsNs6V5E6i2XIfCiRNNUPPXy6kKG6IwIM5xnuJZK2s97BBOXyg7x9VrxBga8ffA8VDCyO5YVtz-w1YWxOqFA"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

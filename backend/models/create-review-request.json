@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "todo",
+  "type": "object",
+  "properties": {
+    "bookId": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "createDate": {
+      "type": "string"
+    },
+    "comment": {
+      "type": "string"
+    },
+    "point": {
+      "type": "number"
+    },
+    "attachmentUrl": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "bookId",
+    "title",
+    "comment",
+    "point"
+  ],
+  "additionalProperties": false
+}
